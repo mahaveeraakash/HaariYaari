@@ -45,18 +45,28 @@ pipeline {
         }
     }
 
-    post {
+  post {
         always {
             script {
-                // DYNAMIC RECIPIENTS: Sends to the collaborator AND you
-                def recipients = "${COLLABORATOR_EMAIL}, ${env.MY_EMAIL}"
+                // 1. Identify the trigger email
+                def commitEmail = COLLABORATOR_EMAIL.toLowerCase()
                 
-                // Clean up the display name for the email body
-                def displayName = COLLABORATOR_EMAIL.contains("noreply") ? "Mahaveer Aakash (via GitHub)" : COLLABORATOR_EMAIL
+                // 2. Define your fixed email
+                def myEmail = "aakashmahaveer@gmail.com"
+                
+                // 3. Logic: If it's a noreply address OR contains 'qasim', force his real email
+                def professorEmail = "qasimalik@gmail.com"
+                def finalRecipients = ""
 
-                echo "Attempting to send email to: ${recipients}"
+                if (commitEmail.contains("qasim") || commitEmail.contains("noreply")) {
+                    finalRecipients = "${professorEmail}, ${myEmail}"
+                } else {
+                    finalRecipients = "${commitEmail}, ${myEmail}"
+                }
 
-                mail to: "${recipients}",
+                echo "Resolved Recipients: ${finalRecipients}"
+
+                mail to: "${finalRecipients}",
                      subject: "HaariYaari Build #${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
                      body: """
 Hello,
@@ -66,10 +76,10 @@ The Jenkins pipeline execution for HaariYaari is complete.
 --- BUILD DETAILS ---
 Status: ${currentBuild.currentResult}
 Build Number: ${env.BUILD_NUMBER}
-Triggered by: ${displayName}
+Triggered by: ${commitEmail}
 View Full Logs Here: ${env.BUILD_URL}console
 
-Note: If the tests passed, the application is now UP at http://3.93.240.67:5000
+Note: If the tests passed, the application is now UP at http://3.93.240.67:PORT
 
 Regards,
 Jenkins Automation Server
