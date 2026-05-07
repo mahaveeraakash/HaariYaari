@@ -5,7 +5,6 @@ pipeline {
 
     environment {
         APP_NAME = "haariyaari-backend"
-        // Replace with your actual email to receive copies of every build
         MY_EMAIL = "aakashmahaveer@gmail.com" 
     }
 
@@ -14,14 +13,10 @@ pipeline {
             steps {
                 script {
                     echo "--- Initializing Environment & Fetching Code ---"
-                    
-                    // Fixes the 'dubious ownership' error for the Jenkins user
                     sh "git config --global --add safe.directory /home/ec2-user/HaariYaari"
-                    
-                    // Sync the repository
                     sh "sudo -u ec2-user bash -c 'cd /home/ec2-user/HaariYaari && git fetch --all && git reset --hard origin/main'"
                     
-                    // Capture the email of the person who pushed the code
+                    // This line captures the collaborator's real email from the commit
                     COLLABORATOR_EMAIL = sh(script: "cd /home/ec2-user/HaariYaari && git log -1 --pretty=format:'%ae'", returnStdout: true).trim()
                     echo "Build triggered by collaborator: ${COLLABORATOR_EMAIL}"
                 }
@@ -38,7 +33,6 @@ pipeline {
         stage('Run Containerized Tests') {
             steps {
                 echo "--- Executing 15 Automated Selenium Tests ---"
-                // If tests fail, the pipeline stops here and the app stays DOWN
                 sh "sudo -u ec2-user bash -c 'docker run --rm haariyaari-test'"
             }
         }
@@ -46,20 +40,21 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 echo "--- Tests Passed: Bringing Deployment UP ---"
-                // This only runs if tests pass
                 sh "sudo -u ec2-user bash -c 'cd /home/ec2-user/HaariYaari && pm2 restart server.js || pm2 start server.js --name ${APP_NAME}'"
             }
         }
     }
 
-   post {
+    post {
         always {
             script {
-                // Hardcode your actual emails here
-                def recipients = "qasimalik@gmail.com, your-actual-email@gmail.com"
+                // DYNAMIC RECIPIENTS: Sends to the collaborator AND you
+                def recipients = "${COLLABORATOR_EMAIL}, ${env.MY_EMAIL}"
                 
                 // Clean up the display name for the email body
                 def displayName = COLLABORATOR_EMAIL.contains("noreply") ? "Mahaveer Aakash (via GitHub)" : COLLABORATOR_EMAIL
+
+                echo "Attempting to send email to: ${recipients}"
 
                 mail to: "${recipients}",
                      subject: "HaariYaari Build #${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
@@ -74,7 +69,7 @@ Build Number: ${env.BUILD_NUMBER}
 Triggered by: ${displayName}
 View Full Logs Here: ${env.BUILD_URL}console
 
-Note: If the tests passed, the application is now UP at http://3.93.240.67:PORT
+Note: If the tests passed, the application is now UP at http://3.93.240.67:5000
 
 Regards,
 Jenkins Automation Server
