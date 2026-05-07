@@ -52,18 +52,18 @@ pipeline {
         }
     }
 
-    post {
+   post {
         always {
             script {
-                // Determine recipients (Collaborator + You)
-                def recipients = "${COLLABORATOR_EMAIL}"
-                if (env.MY_EMAIL) { recipients += ", ${env.MY_EMAIL}" }
+                // Hardcode your actual emails here
+                def recipients = "qasimalik@gmail.com, your-actual-email@gmail.com"
+                
+                // Clean up the display name for the email body
+                def displayName = COLLABORATOR_EMAIL.contains("noreply") ? "Mahaveer Aakash (via GitHub)" : COLLABORATOR_EMAIL
 
-                if (COLLABORATOR_EMAIL != "") {
-                    echo "Sending results to: ${recipients}"
-                    mail to: "${recipients}",
-                         subject: "HaariYaari Build #${env.BUILD_NUMBER} - Result: ${currentBuild.currentResult}",
-                         body: """
+                mail to: "${recipients}",
+                     subject: "HaariYaari Build #${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
+                     body: """
 Hello,
 
 The Jenkins pipeline execution for HaariYaari is complete.
@@ -71,17 +71,15 @@ The Jenkins pipeline execution for HaariYaari is complete.
 --- BUILD DETAILS ---
 Status: ${currentBuild.currentResult}
 Build Number: ${env.BUILD_NUMBER}
-Triggered by: ${COLLABORATOR_EMAIL}
-Console Log: ${env.BUILD_URL}console
+Triggered by: ${displayName}
+View Full Logs Here: ${env.BUILD_URL}console
 
-The application has been deployed/restarted on the EC2 instance if the tests were successful.
+Note: If the tests passed, the application is now UP at http://3.93.240.67:PORT
 
 Regards,
 Jenkins Automation Server
 """
-                }
             }
-            // Cleanup to keep your 16GB disk healthy
             sh "docker system prune -f"
         }
     }
