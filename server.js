@@ -13,7 +13,7 @@ dotenv.config();
 connectDB();
 
 const app = express();
-
+console.log("Ashar Pusing to see the pipeline!");
 // Middleware
 app.use(cors());
 app.use(express.json());
