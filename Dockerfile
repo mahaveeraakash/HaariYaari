@@ -1,21 +1,14 @@
-
 FROM selenium/standalone-chrome:latest
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy package files first to leverage Docker caching
+# Only copy package files first
 COPY package*.json ./
 
-# Install project dependencies (including selenium-webdriver)
+# Install dependencies inside the container
 RUN npm install
 
-# Copy the rest of your application code
+# Copy the rest of the code (ignoring what's in .dockerignore)
 COPY . .
 
-# Set environment variables for Headless Chrome execution in the container
-ENV CHROME_BIN=/usr/bin/google-chrome
-ENV NODE_ENV=production
-
-# The default command runs your 15 automated tests
 CMD ["node", "testScript.js"]
