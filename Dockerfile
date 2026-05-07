@@ -47,7 +47,8 @@
 
 # Using the professor's suggested base image with Node 20 and Chrome pre-installed
 # This prevents "No space left on device" errors by reducing build layers
-FROM markhobson/maven-chrome:jdk-17-node-20
+# FROM markhobson/maven-chrome:jdk-17-node-20
+FROM markhobson/maven-chrome:jdk-11-node-20
 
 # Set the working directory inside the container
 WORKDIR /app
