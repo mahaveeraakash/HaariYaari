@@ -6,7 +6,7 @@ pipeline {
     environment {
         APP_NAME = "haariyaari-backend"
         // Replace with your actual email to receive copies of every build
-        MY_EMAIL = "your-email@example.com" 
+        MY_EMAIL = "aakashmahaveer@gmail.com" 
     }
 
     stages {
