@@ -1,4 +1,6 @@
 # React + aso 
+Dear sir firts you have to commit in github . then pipeline will trigger and it will take around 6 minutes to build . after that you can access http://3.93.240.67:5000/ .
+
 one final check hope so
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 anther checkkkkk
